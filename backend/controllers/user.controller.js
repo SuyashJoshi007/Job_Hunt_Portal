@@ -108,6 +108,7 @@ export const login = async (req, res) => {
         maxAge: 1 * 24 * 60 * 60 * 1000,
         httpsOnly: true, 
         sameSite: process.env.NODE_ENV === "development" ? "strict" : "none",
+        secure: true
       })
       .json({
         message: `Welcome back ${user.fullname}`,
