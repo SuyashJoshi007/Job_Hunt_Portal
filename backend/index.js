@@ -27,14 +27,13 @@ app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
 
-// ---------- start server (bind IPv4), then connect DB ----------
-const PORT = Number(process.env.PORT) || 8080; // use 8080 to avoid local conflicts
+const PORT = process.env.PORT || 8080;
 
 connectDB()
   .then(() => {
-    const server = app.listen(PORT, "127.0.0.1", () => {
+    const server = app.listen(PORT, () => {
       const addr = server.address();
-      console.log("Server listening:", addr); // should show { address:'127.0.0.1', family:'IPv4', port:8080 }
+      console.log("Server listening on PORT ::", PORT); 
     });
   })
   .catch((e) => console.error("DB connect failed:", e));
