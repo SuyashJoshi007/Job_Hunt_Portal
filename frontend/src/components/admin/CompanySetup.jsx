@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../shared/Navbar";
 import { Button } from "../ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Upload } from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import axios from "axios";
@@ -10,82 +10,103 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import useGetCompanyById from "@/hooks/useGetCompanyById";
-import { Upload } from "lucide-react";
 
 const CompanySetup = () => {
   const params = useParams();
   useGetCompanyById(params.id);
+
+  const { singleCompany } = useSelector((store) => store.company);
+
   const [input, setInput] = useState({
     name: "",
     description: "",
     website: "",
     location: "",
+    // IMPORTANT: this can be a File OR a string URL (existing logo)
     file: null,
   });
-  const { singleCompany } = useSelector((store) => store.company);
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Derive a readable name from either File or URL
+  const displayFileName =
+    input?.file instanceof File
+      ? input.file.name
+      : typeof input?.file === "string" && input.file
+      ? input.file.split("/").pop()
+      : "PNG/JPG up to 2MB";
+
   const changeEventHandler = (e) => {
-    setInput({ ...input, [e.target.name]: e.target.value });
+    setInput((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const changeFileHandler = (e) => {
-    const file = e.target.files?.[0];
-    setInput({ ...input, file });
+    const file = e.target.files?.[0] || null;
+    setInput((prev) => ({ ...prev, file })); // Now a real File
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
+    // Basic guard rails
+    if (!input.name?.trim()) return toast.error("Company name is required");
+    if (!params?.id) return toast.error("Missing company id in route");
+
     const formData = new FormData();
-    formData.append("name", input.name);
-    formData.append("description", input.description);
-    formData.append("website", input.website);
-    formData.append("location", input.location);
-    if (input.file) {
+    formData.append("name", input.name || "");
+    formData.append("description", input.description || "");
+    formData.append("website", input.website || "");
+    formData.append("location", input.location || "");
+
+    // Only append when a NEW file was selected.
+    if (input.file instanceof File) {
       formData.append("file", input.file);
     }
+
     try {
       setLoading(true);
       const res = await axios.put(
         `${COMPANY_API_END_POINT}/update/${params.id}`,
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
         }
       );
-      if (res.data.success) {
-        toast.success(res.data.message);
+
+      if (res?.data?.success) {
+        toast.success(res.data.message || "Company updated");
         navigate("/admin/companies");
+      } else {
+        toast.error(res?.data?.message || "Update failed");
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message);
+      console.error("Company update error:", error);
+      toast.error(error?.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // Safely hydrate from store; allow file to be a URL (existing)
     setInput({
-      name: singleCompany.name || "",
-      description: singleCompany.description || "",
-      website: singleCompany.website || "",
-      location: singleCompany.location || "",
-      file: singleCompany.file || null,
+      name: singleCompany?.name || "",
+      description: singleCompany?.description || "",
+      website: singleCompany?.website || "",
+      location: singleCompany?.location || "",
+      file: singleCompany?.file || null, // keep existing URL, don't force File
     });
   }, [singleCompany]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 overflow-x-clip w-full">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-x-clip">
         <form
           onSubmit={submitHandler}
-          className="bg-white border rounded-sm shadow-sm overflow-hidden ring-1 ring-gray-100"
+          className="bg-white border rounded-sm shadow-sm overflow-hidden ring-1 ring-gray-100 max-w-full"
         >
           {/* Header */}
           <div className="flex items-center justify-between gap-5 px-6 sm:px-8 py-5 border-b bg-gray-50/70">
@@ -105,7 +126,7 @@ const CompanySetup = () => {
 
           {/* Body */}
           <div className="p-6 sm:p-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 min-w-0">
               <div className="space-y-1.5">
                 <Label>Company Name</Label>
                 <Input
@@ -114,7 +135,7 @@ const CompanySetup = () => {
                   value={input.name}
                   onChange={changeEventHandler}
                   placeholder="Acme Technologies Pvt. Ltd."
-                  className="mt-1 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
+                  className="w-full mt-1 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
                 />
               </div>
 
@@ -126,7 +147,7 @@ const CompanySetup = () => {
                   value={input.description}
                   onChange={changeEventHandler}
                   placeholder="Short company tagline or overview"
-                  className="mt-1 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
+                  className="w-full mt-1 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
                 />
               </div>
 
@@ -138,7 +159,7 @@ const CompanySetup = () => {
                   value={input.website}
                   onChange={changeEventHandler}
                   placeholder="https://example.com"
-                  className="mt-1 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
+                  className="w-full mt-1 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
                 />
               </div>
 
@@ -150,35 +171,36 @@ const CompanySetup = () => {
                   value={input.location}
                   onChange={changeEventHandler}
                   placeholder="City, State / Country"
-                  className="mt-1 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
+                  className="w-full mt-1 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
                 />
               </div>
 
-              <div className="space-y-2.5 sm:col-span-2">
+              <div className="space-y-2.5 sm:col-span-2 min-w-0">
                 <Label>Logo</Label>
 
-                <div className="space-y-1.5">
+                {/* File row: truncates & never overflows */}
+                <div className="flex items-center gap-2 max-w-full overflow-hidden">
                   <label
                     htmlFor="logo"
-                    className="inline-flex items-center gap-2 rounded-sm border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700
-               hover:bg-gray-50 transition cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-sm border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition cursor-pointer shrink-0"
                   >
                     <Upload className="h-4 w-4" />
                     Choose image
                   </label>
 
-                  <span className="ml-2 align-middle text-sm text-gray-500 truncate max-w-[220px]">
-                    {input?.file?.name ?? "PNG/JPG up to 2MB"}
+                  <span className="flex-1 min-w-0 truncate text-sm text-gray-500">
+                    {displayFileName}
                   </span>
 
                   <Input
                     id="logo"
                     type="file"
-                    accept="image/*"
+                    accept="image/png,image/jpeg"
                     onChange={changeFileHandler}
                     className="sr-only"
                   />
                 </div>
+
                 <p className="text-xs text-gray-500 mt-1">
                   PNG/JPG up to 2MB recommended.
                 </p>
@@ -188,14 +210,14 @@ const CompanySetup = () => {
 
           <div className="border-t bg-gray-50/70 px-6 sm:px-8 py-4">
             {loading ? (
-              <Button>
+              <Button className="w-full" disabled>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Please wait
               </Button>
             ) : (
               <Button
                 type="submit"
-                className="w-full bg-red-500 hover:bg-red-600"
+                className="w-full bg-violet-500 hover:bg-violet-600"
               >
                 Update
               </Button>

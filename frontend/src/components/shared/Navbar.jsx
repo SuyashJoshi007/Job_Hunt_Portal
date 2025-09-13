@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { LogOut, User2 } from "lucide-react";
+import { LogOut, User2, Menu, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { USER_API_END_POINT } from "@/utils/constant";
@@ -17,12 +17,11 @@ const Navbar = () => {
   const { user } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const logoutHandler = async () => {
     try {
-      const res = await axios.get(`${USER_API_END_POINT}/logout`, {
-        withCredentials: true,
-      });
+      const res = await axios.get(`${USER_API_END_POINT}/logout`, { withCredentials: true });
       if (res.data?.success) {
         dispatch(setUser(null));
         navigate("/");
@@ -46,45 +45,56 @@ const Navbar = () => {
       .join("")
       .toUpperCase() || "U";
 
+  // Shared nav links (desktop + mobile) — no separate "Home" here since brand is Home
+  const NavLinks = () =>
+    user?.role === "recruiter" ? (
+      <>
+        <li>
+          <Link className="hover:text-foreground transition-colors" to="/admin/companies">
+            Companies
+          </Link>
+        </li>
+        <li>
+          <Link className="hover:text-foreground transition-colors" to="/admin/jobs">
+            Jobs
+          </Link>
+        </li>
+      </>
+    ) : (
+      <>
+        <li>
+          <Link className="hover:text-foreground transition-colors" to="/jobs">
+            Jobs
+          </Link>
+        </li>
+        <li>
+          <Link className="hover:text-foreground transition-colors" to="/browse">
+            Browse
+          </Link>
+        </li>
+      </>
+    );
+
   return (
-    <div className="bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b sticky top-0 z-50">
-      <div className="flex items-center justify-between mx-auto max-w-7xl h-16 px-4 sm:px-6 lg:px-8">
-        {/* Brand (avoid nested h1 to prevent hydration issues) */}
-        <Link to="/" className="group inline-flex items-center gap-2" aria-label="Home">
+    <header className="bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70 border-b sticky top-0 z-50">
+      <div className="mx-auto max-w-7xl h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        {/* Brand as Home */}
+        <Link
+          to="/"
+          aria-label="Go to Home"
+          className="group inline-flex items-center gap-2 select-none"
+        >
           <span className="text-xl sm:text-2xl font-bold tracking-tight transition-transform group-hover:scale-[1.02]">
             Job<span className="text-[#F83002]">Portal</span>
           </span>
         </Link>
 
-        {/* Right side */}
-        <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
-          {/* Nav links — always visible */}
-          <ul className="flex font-medium items-center gap-5 text-gray-700">
-            {user?.role === "recruiter" ? (
-              <>
-                <li className="hover:text-gray-900 transition-colors">
-                  <Link to="/admin/companies">Companies</Link>
-                </li>
-                <li className="hover:text-gray-900 transition-colors">
-                  <Link to="/admin/jobs">Jobs</Link>
-                </li>
-              </>
-            ) : (
-              <>
-                <li className="hover:text-gray-900 transition-colors">
-                  <Link to="/">Home</Link>
-                </li>
-                <li className="hover:text-gray-900 transition-colors">
-                  <Link to="/jobs">Jobs</Link>
-                </li>
-                <li className="hover:text-gray-900 transition-colors">
-                  <Link to="/browse">Browse</Link>
-                </li>
-              </>
-            )}
+        {/* Desktop */}
+        <div className="hidden md:flex items-center gap-5">
+          <ul className="flex items-center gap-6 text-sm font-medium text-foreground/80">
+            <NavLinks />
           </ul>
 
-          {/* Auth actions */}
           {!user ? (
             <div className="flex items-center gap-2">
               <Link to="/login">
@@ -103,7 +113,7 @@ const Navbar = () => {
               <PopoverTrigger asChild>
                 <button
                   aria-label="Open user menu"
-                  className="cursor-pointer rounded-full ring-2 ring-transparent hover:ring-red-400 transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  className="cursor-pointer rounded-full ring-2 ring-transparent hover:ring-ring transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <Avatar className="h-9 w-9">
                     <AvatarImage
@@ -117,7 +127,7 @@ const Navbar = () => {
 
               <PopoverContent className="w-80 p-0 overflow-hidden rounded-sm shadow-xl">
                 <div className="p-4 flex items-center gap-3">
-                  <Avatar className="h-12 w-12 ring-1 ring-gray-200">
+                  <Avatar className="h-12 w-12 ring-1 ring-border">
                     <AvatarImage
                       src={user?.profile?.profilePhoto}
                       alt={`Profile picture of ${user?.fullname || "user"}`}
@@ -128,7 +138,7 @@ const Navbar = () => {
                     <h4 className="font-semibold text-base truncate">
                       {user?.fullname || "User"}
                     </h4>
-                    <p className="text-sm text-gray-500 line-clamp-2">
+                    <p className="text-sm text-foreground/70 line-clamp-2">
                       {user?.profile?.bio || "No bio added yet."}
                     </p>
                   </div>
@@ -140,7 +150,7 @@ const Navbar = () => {
                   {user?.role === "student" && (
                     <Link
                       to="/profile"
-                      className="flex items-center gap-2 justify-start text-gray-700 hover:text-indigo-600 transition-colors px-3 py-2 rounded-sm hover:bg-gray-100 mb-2"
+                      className="flex items-center gap-2 justify-start text-foreground/80 transition-colors px-3 py-2 rounded-sm hover:bg-muted mb-2"
                     >
                       <User2 size={18} />
                       <span className="font-medium">View Profile</span>
@@ -148,7 +158,7 @@ const Navbar = () => {
                   )}
                   <Button
                     onClick={logoutHandler}
-                    className="justify-start gap-2 px-3 bg-red-500 hover:bg-red-600 hover:scale-102 transition-transform"
+                    className="w-full justify-start gap-2 px-3 bg-red-500 hover:bg-red-600 hover:scale-[1.02] transition-transform"
                   >
                     <LogOut size={18} />
                     Logout
@@ -158,8 +168,72 @@ const Navbar = () => {
             </Popover>
           )}
         </div>
+
+        {/* Mobile controls */}
+        <div className="md:hidden flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+          </Button>
+        </div>
       </div>
-    </div>
+
+      {/* Mobile menu */}
+      <div
+        className={`md:hidden border-t transition-[max-height,opacity] duration-300 overflow-hidden ${
+          mobileOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="px-4 py-3 space-y-3">
+          <ul
+            className="grid gap-2 text-sm font-medium text-foreground/80"
+            onClick={() => setMobileOpen(false)}
+          >
+            <NavLinks />
+          </ul>
+
+          {!user ? (
+            <div className="grid grid-cols-2 gap-2">
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" className="w-full">
+                  Login
+                </Button>
+              </Link>
+              <Link to="/signup" onClick={() => setMobileOpen(false)}>
+                <Button className="w-full bg-[#6A38C2] hover:bg-[#5b30a6]">
+                  Signup
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {user?.role === "student" && (
+                <Link to="/profile" onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" className="w-full justify-start gap-2">
+                    <User2 size={18} />
+                    Profile
+                  </Button>
+                </Link>
+              )}
+              <Button
+                onClick={() => {
+                  setMobileOpen(false);
+                  logoutHandler();
+                }}
+                className="justify-start gap-2 px-3 bg-red-500 hover:bg-red-600 hover:scale-102 transition-transform"
+              >
+                <LogOut size={18} />
+                Logout
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
   );
 };
 

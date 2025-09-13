@@ -1,3 +1,4 @@
+// src/components/Job.jsx
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Bookmark, Check } from 'lucide-react';
@@ -30,7 +31,6 @@ const Job = ({ job }) => {
       .join('')
       .toUpperCase() || '?';
 
-  // Derive once; only ever elevate to true if props say so
   const derivedAppliedFromProp = useMemo(
     () => Boolean(job?.applications?.some((a) => a?.applicant === user?._id)),
     [job?.applications, user?._id]
@@ -39,7 +39,6 @@ const Job = ({ job }) => {
   const [isApplied, setIsApplied] = useState(derivedAppliedFromProp);
   const [applying, setApplying] = useState(false);
 
-  // IMPORTANT: never force back to false from props; only set true when we learn it’s applied
   useEffect(() => {
     if (derivedAppliedFromProp) setIsApplied(true);
   }, [derivedAppliedFromProp]);
@@ -52,7 +51,7 @@ const Job = ({ job }) => {
         withCredentials: true,
       });
       if (res.data?.success) {
-        setIsApplied(true); // optimistic local state
+        setIsApplied(true);
         toast.success(res.data?.message || 'Applied successfully');
       } else {
         toast.error('Failed to apply');
@@ -70,7 +69,10 @@ const Job = ({ job }) => {
   }, [isApplied, applying, job?._id, navigate]);
 
   return (
-    <div className="group p-5 rounded-sm border bg-white ring-1 ring-gray-100 shadow-sm hover:shadow-md transition-shadow">
+    <div
+      className="group p-5 rounded-sm border bg-white ring-1 ring-gray-100 shadow-sm hover:shadow-md transition-shadow
+                 h-full flex flex-col"
+    >
       {/* Top row */}
       <div className="flex items-center justify-between">
         <p className="text-xs sm:text-sm text-gray-500">{postedLabel}</p>
@@ -103,27 +105,30 @@ const Job = ({ job }) => {
         </div>
       </div>
 
-      {/* Title + description */}
-      <div>
-        <h3 className="font-bold text-lg sm:text-xl my-2 leading-tight">
-          {job?.title || '—'}
-        </h3>
-        <p className="text-sm text-gray-600 line-clamp-3">
-          {job?.description || '—'}
-        </p>
-      </div>
+      {/* Main content grows to push actions to bottom */}
+      <div className="flex-1">
+        {/* Title + description */}
+        <div>
+          <h3 className="font-bold text-lg sm:text-xl my-2 leading-tight">
+            {job?.title || '—'}
+          </h3>
+          <p className="text-sm text-gray-600">
+            {job?.description || '—'}
+          </p>
+        </div>
 
-      {/* Badges */}
-      <div className="flex flex-wrap items-center gap-2 mt-4">
-        <Badge variant="secondary" className="bg-blue-50 text-blue-700 ring-1 ring-blue-100">
-          {job?.position ?? job?.postion ?? '—'} Positions
-        </Badge>
-        <Badge variant="secondary" className="bg-[#F83002]/10 text-[#F83002] ring-1 ring-[#F83002]/20">
-          {job?.jobType || '—'}
-        </Badge>
-        <Badge variant="secondary" className="bg-violet-50 text-[#7209b7] ring-1 ring-violet-100">
-          {job?.salary ? `${job.salary} LPA` : '—'}
-        </Badge>
+        {/* Badges */}
+        <div className="flex flex-wrap items-center gap-2 mt-4">
+          <Badge variant="secondary" className="bg-blue-50 text-blue-700 ring-1 ring-blue-100">
+            {job?.position ?? job?.postion ?? '—'} Positions
+          </Badge>
+          <Badge variant="secondary" className="bg-[#F83002]/10 text-[#F83002] ring-1 ring-[#F83002]/20">
+            {job?.jobType || '—'}
+          </Badge>
+          <Badge variant="secondary" className="bg-violet-50 text-[#7209b7] ring-1 ring-violet-100">
+            {job?.salary ? `${job.salary} LPA` : '—'}
+          </Badge>
+        </div>
       </div>
 
       {/* Actions */}
@@ -136,7 +141,6 @@ const Job = ({ job }) => {
           Details
         </Button>
 
-        {/* Apply button: becomes "Applied" and stays disabled */}
         <Button
           onClick={isApplied ? undefined : applyJobHandler}
           disabled={isApplied || applying}

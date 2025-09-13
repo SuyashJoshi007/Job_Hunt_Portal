@@ -96,7 +96,7 @@ const Signup = () => {
                     value={input.fullname}
                     name="fullname"
                     onChange={changeEventHandler}
-                    placeholder="John Patel"
+                    placeholder="Enter your full name"
                     className="pl-9 h-11 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
                   />
                 </div>
@@ -113,7 +113,7 @@ const Signup = () => {
                     value={input.email}
                     name="email"
                     onChange={changeEventHandler}
-                    placeholder="patel@gmail.com"
+                    placeholder="Enter your email"
                     className="pl-9 h-11 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
                   />
                 </div>
@@ -130,7 +130,7 @@ const Signup = () => {
                     value={input.phoneNumber}
                     name="phoneNumber"
                     onChange={changeEventHandler}
-                    placeholder="8080808080"
+                    placeholder="Enter your phone number"
                     className="pl-9 h-11 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
                   />
                 </div>

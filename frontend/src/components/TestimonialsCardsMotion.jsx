@@ -1,5 +1,6 @@
+// src/components/TestimonialsCardsMotion.jsx
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Star } from "lucide-react";
 
 const TESTIMONIALS = [
@@ -32,54 +33,71 @@ const TESTIMONIALS = [
   },
 ];
 
-const Stars = ({ count = 5 }) => (
-  <div className="flex items-center gap-1">
-    {Array.from({ length: 5 }).map((_, i) => (
-      <Star
-        key={i}
-        className={`h-4 w-4 ${i < count ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-      />
-    ))}
-  </div>
-);
+function Stars({ count = 5 }) {
+  return (
+    <div className="flex items-center gap-1" aria-label={`${count} out of 5 stars`}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className={`h-4 w-4 ${
+            i < count ? "fill-yellow-400 text-yellow-400" : "text-foreground/20"
+          }`}
+          aria-hidden="true"
+        />
+      ))}
+    </div>
+  );
+}
 
-const Card = ({ t, i }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 14 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, amount: 0.2 }}
-    transition={{ duration: 0.5, delay: i * 0.07 }}
-    className="rounded-sm border bg-white ring-1 ring-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow"
-  >
-    <div className="flex items-center gap-3 mb-3">
-      <img
-        src={t.avatar}
-        alt={`${t.name} avatar`}
-        className="h-10 w-10 rounded-full object-cover ring-1 ring-gray-200"
-      />
-      <div className="min-w-0">
-        <div className="font-semibold leading-tight">{t.name}</div>
-        <div className="text-xs text-gray-500 truncate">{t.role} • {t.company}</div>
+function Card({ t, i }) {
+  const prefersReducedMotion = useReducedMotion();
+
+  return (
+    <motion.article
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+      whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={prefersReducedMotion ? undefined : { duration: 0.45, delay: i * 0.07 }}
+      className="rounded-lg border bg-background text-foreground ring-1 ring-border/50 p-4 sm:p-5
+                 shadow-sm hover:shadow-md transition-shadow"
+    >
+      <div className="flex items-center gap-3 mb-3">
+        <img
+          src={t.avatar}
+          alt={`${t.name} avatar`}
+          loading="lazy"
+          className="h-10 w-10 sm:h-11 sm:w-11 rounded-full object-cover ring-1 ring-border"
+        />
+        <div className="min-w-0">
+          <h4 className="font-semibold leading-tight truncate">{t.name}</h4>
+          <p className="text-xs sm:text-sm text-foreground/60 truncate">
+            {t.role} • {t.company}
+          </p>
+        </div>
       </div>
-    </div>
-    <p className="text-gray-700 text-sm leading-relaxed">“{t.quote}”</p>
-    <div className="mt-4">
-      <Stars count={t.rating} />
-    </div>
-  </motion.div>
-);
 
-const TestimonialsCardsMotion = () => {
+      <p className="text-sm sm:text-base text-foreground/80 leading-relaxed">
+        “{t.quote}”
+      </p>
+
+      <div className="mt-4">
+        <Stars count={t.rating} />
+      </div>
+    </motion.article>
+  );
+}
+
+export default function TestimonialsCardsMotion() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-      <h3 className="text-lg font-semibold mb-3">What people say</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <h3 className="text-base sm:text-lg font-semibold mb-3">What people say</h3>
+
+      {/* Responsive grid: 1 col (phones) → 2 (tablets) → 3 (desktop) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {TESTIMONIALS.map((t, i) => (
           <Card key={t.name} t={t} i={i} />
         ))}
       </div>
     </section>
   );
-};
-
-export default TestimonialsCardsMotion;
+}

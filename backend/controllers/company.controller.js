@@ -72,39 +72,61 @@ export const getCompanyById = async (req, res) => {
 };
 export const updateCompany = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    // Optional fields – allow partial updates
     const { name, description, website, location } = req.body;
 
-    const logoPath = req.file?.path;
-    if(!name || !description || !website || !location) {
+    // Build update payload only with provided fields
+    const updateData = {};
+    if (typeof name !== "undefined") updateData.name = name;
+    if (typeof description !== "undefined") updateData.description = description;
+    if (typeof website !== "undefined") updateData.website = website;
+    if (typeof location !== "undefined") updateData.location = location;
+
+    // Handle optional logo upload (Multer: upload.single("logo"))
+    // NOTE: req.file is present only if a file was sent in the request
+    if (req.file?.path) {
+      const cloudResponse = await uploadOnCloudinary(req.file.path);
+      if (!cloudResponse?.secure_url) {
+        return res.status(500).json({
+          success: false,
+          message: "Logo upload failed. Please try again.",
+        });
+      }
+      updateData.logo = cloudResponse.secure_url; // Only set when a new file was uploaded
+    }
+
+    // If the client sent nothing, bail early
+    if (Object.keys(updateData).length === 0) {
       return res.status(400).json({
-        message: "Something is missing",
         success: false,
+        message: "No fields to update.",
       });
     }
-    let logoUrl = "";
-    if(logoPath) {
-      const cloudResponse = await uploadOnCloudinary(logoPath);
-      console.log("Cloudinary Response :: ", cloudResponse);
-      logoUrl = cloudResponse?.secure_url;
-    }
-    
-    const updateData = { name, description, website, location, logo: logoUrl };
 
-    const company = await Company.findByIdAndUpdate(req.params.id, updateData, {
+    const company = await Company.findByIdAndUpdate(id, updateData, {
       new: true,
+      runValidators: true,
     });
 
     if (!company) {
       return res.status(404).json({
-        message: "Company not found.",
         success: false,
+        message: "Company not found.",
       });
     }
+
     return res.status(200).json({
-      message: "Company information updated.",
       success: true,
+      message: "Company information updated.",
+      company, // return updated doc (useful for UI)
     });
   } catch (error) {
-    console.log(error);
+    console.error("updateCompany error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error.",
+    });
   }
 };

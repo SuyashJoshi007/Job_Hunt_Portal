@@ -103,7 +103,7 @@ const Login = () => {
                     value={input.email}
                     name="email"
                     onChange={changeEventHandler}
-                    placeholder="patel@gmail.com"
+                    placeholder="Enter a valid email address"
                     autoComplete="email"
                     className="pl-9 h-11 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
                     disabled={loading}
@@ -122,7 +122,7 @@ const Login = () => {
                     value={input.password}
                     name="password"
                     onChange={changeEventHandler}
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     autoComplete="current-password"
                     className="pl-9 h-11 focus-visible:ring-2 focus-visible:ring-[#6A38C2]/40"
                     disabled={loading}
