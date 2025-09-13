@@ -1,11 +1,7 @@
 /* src/index.css */
 @import "tailwindcss";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
-
-/* Load plugins the Tailwind v4 way (no tailwind.config needed for these) */
 @plugin "tailwindcss-animate";
+@custom-variant dark (&:is(.dark *));
 
 /* Define design tokens so classes like border-border / bg-background work */
 @theme {
