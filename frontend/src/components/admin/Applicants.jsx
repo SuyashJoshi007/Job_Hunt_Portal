@@ -12,10 +12,12 @@ const Applicants = () => {
     const dispatch = useDispatch();
     const {applicants} = useSelector(store=>store.application);
 
+    const {token} = useSelector(store=>store.auth);
+
     useEffect(() => {
         const fetchAllApplicants = async () => {
             try {
-                const res = await axios.get(`${APPLICATION_API_END_POINT}/${params.id}/applicants`, { withCredentials: true });
+                const res = await axios.get(`${APPLICATION_API_END_POINT}/${params.id}/applicants`, { withCredentials: true, headers: { Authorization: `Bearer ${token}` } });
                 dispatch(setAllApplicants(res.data.job));
             } catch (error) {
                 console.log(error);

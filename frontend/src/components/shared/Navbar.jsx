@@ -14,14 +14,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Separator } from "../ui/separator";
 
 const Navbar = () => {
-  const { user } = useSelector((store) => store.auth);
+  const { user, token } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const logoutHandler = async () => {
     try {
-      const res = await axios.get(`${USER_API_END_POINT}/logout`, { withCredentials: true });
+      const res = await axios.get(`${USER_API_END_POINT}/logout`, { withCredentials: true, headers: { Authorization: `Bearer ${token}` } });
       if (res.data?.success) {
         dispatch(setUser(null));
         navigate("/");

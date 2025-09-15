@@ -16,13 +16,14 @@ const CompanySetup = () => {
   useGetCompanyById(params.id);
 
   const { singleCompany } = useSelector((store) => store.company);
+  const { token } = useSelector((store) => store.auth);
 
   const [input, setInput] = useState({
     name: "",
     description: "",
     website: "",
     location: "",
-    // IMPORTANT: this can be a File OR a string URL (existing logo)
+    // can be a File OR a string URL (existing logo)
     logo: null,
   });
 
@@ -30,7 +31,7 @@ const CompanySetup = () => {
   const navigate = useNavigate();
 
   // Derive a readable name from either File or URL
-  const displayFileName =
+  const displayLogoName =
     input?.logo instanceof File
       ? input.logo.name
       : typeof input?.logo === "string" && input.logo
@@ -43,37 +44,14 @@ const CompanySetup = () => {
 
   const changeFileHandler = (e) => {
     const file = e.target.files?.[0] || null;
-
-    // Optional client-side guards
-    if (file && file.size > 2 * 1024 * 1024) {
-      toast.error("Logo must be under 2MB");
-      return;
-    }
-    if (file && !["image/png", "image/jpeg"].includes(file.type)) {
-      toast.error("Only PNG/JPG allowed");
-      return;
-    }
-
     setInput((prev) => ({ ...prev, logo: file })); // Now a real File
   };
 
   const submitHandler = async (e) => {
     e.preventDefault();
 
-    // Basic guard rails
     if (!input.name?.trim()) return toast.error("Company name is required");
     if (!params?.id) return toast.error("Missing company id in route");
-
-    // Optional small validation
-    if (input.website) {
-      try {
-        // will throw if invalid
-        // eslint-disable-next-line no-new
-        new URL(input.website);
-      } catch {
-        return toast.error("Invalid website URL");
-      }
-    }
 
     const formData = new FormData();
     formData.append("name", input.name || "");
@@ -83,7 +61,7 @@ const CompanySetup = () => {
 
     // Only append when a NEW file was selected.
     if (input.logo instanceof File) {
-      formData.append("logo", input.logo); // MUST match upload.single("logo")
+      formData.append("logo", input.logo); // << field name MUST be 'logo'
     }
 
     try {
@@ -92,7 +70,10 @@ const CompanySetup = () => {
         `${COMPANY_API_END_POINT}/update/${params.id}`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
           withCredentials: true,
         }
       );
@@ -112,7 +93,7 @@ const CompanySetup = () => {
   };
 
   useEffect(() => {
-    // Safely hydrate from store; allow logo to be a URL (existing)
+    // Hydrate from store; allow logo to be a URL (existing)
     setInput({
       name: singleCompany?.name || "",
       description: singleCompany?.description || "",
@@ -211,12 +192,11 @@ const CompanySetup = () => {
                   </label>
 
                   <span className="flex-1 min-w-0 truncate text-sm text-gray-500">
-                    {displayFileName}
+                    {displayLogoName}
                   </span>
 
                   <Input
                     id="logo"
-                    name="logo"
                     type="file"
                     accept="image/png,image/jpeg"
                     onChange={changeFileHandler}

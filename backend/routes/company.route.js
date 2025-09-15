@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.route("/register").post(isAuthenticated,upload.single('logo'),registerCompany);
 router.route("/get").get(isAuthenticated,getCompany);
-router.get("/:id", isAuthenticated, getCompanyById);  
+router.route("/get/:id").get(isAuthenticated,getCompanyById);
 router.route("/update/:id").put(isAuthenticated,upload.single("logo"),updateCompany);
 
 export default router;

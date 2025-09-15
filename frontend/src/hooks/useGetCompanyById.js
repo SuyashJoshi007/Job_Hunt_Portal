@@ -1,37 +1,27 @@
-import { setSingleCompany } from '@/redux/companySlice';
-import axios from 'axios';
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { COMPANY_API_END_POINT } from '@/utils/constant';
+import { setSingleCompany } from '@/redux/companySlice'
+import { setAllJobs } from '@/redux/jobSlice'
+import { COMPANY_API_END_POINT, JOB_API_END_POINT } from '@/utils/constant'
+import axios from 'axios'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 const useGetCompanyById = (companyId) => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (!companyId) return; // prevent /undefined
-
-    const fetchSingleCompany = async () => {
-      try {
-        // If your route is router.get("/get/:id", ...), change URL accordingly:
-        // const url = `${COMPANY_API_END_POINT}/get/${encodeURIComponent(companyId)}`;
-        const url = `${COMPANY_API_END_POINT}/${encodeURIComponent(companyId)}`;
-
-        const res = await axios.get(url, { withCredentials: true });
-
-        if (res?.data?.success && res?.data?.company) {
-          dispatch(setSingleCompany(res.data.company));
-        } else {
-          console.warn('Company fetch returned unexpected payload:', res?.data);
+    const dispatch = useDispatch();
+    const {token} = useSelector(store=>store.auth);
+    useEffect(()=>{
+        const fetchSingleCompany = async () => {
+            try {
+                const res = await axios.get(`${COMPANY_API_END_POINT}/get/${companyId}`,{withCredentials:true, headers: { Authorization: `Bearer ${token}` }});
+                console.log(res.data.company);
+                if(res.data.success){
+                    dispatch(setSingleCompany(res.data.company));
+                }
+            } catch (error) {
+                console.log(error);
+            }
         }
-      } catch (error) {
-        const status = error?.response?.status;
-        const data = error?.response?.data;
-        console.error('fetchSingleCompany error:', status, data || error?.message);
-      }
-    };
+        fetchSingleCompany();
+    },[companyId, dispatch])
+}
 
-    fetchSingleCompany();
-  }, [companyId, dispatch]);
-};
-
-export default useGetCompanyById;
+export default useGetCompanyById

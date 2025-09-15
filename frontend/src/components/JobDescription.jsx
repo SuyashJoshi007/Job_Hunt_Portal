@@ -11,7 +11,7 @@ import { ArrowLeft, MapPin, CalendarDays, BriefcaseBusiness, Coins } from 'lucid
 
 const JobDescription = () => {
   const { singleJob } = useSelector((store) => store.job);
-  const { user } = useSelector((store) => store.auth);
+  const { user, token } = useSelector((store) => store.auth);
 
   const initiallyApplied = useMemo(
     () => Boolean(singleJob?.applications?.some((a) => a?.applicant === user?._id)),
@@ -39,6 +39,9 @@ const JobDescription = () => {
       setApplying(true);
       const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobId}`, {
         withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
       });
       if (res.data?.success) {
         setIsApplied(true);
@@ -61,6 +64,9 @@ const JobDescription = () => {
       try {
         const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {
           withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         if (res.data?.success) {
           const job = res.data.job;

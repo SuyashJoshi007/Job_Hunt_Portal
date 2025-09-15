@@ -9,12 +9,12 @@ import axios from 'axios';
 import { USER_API_END_POINT } from '@/utils/constant';
 import { toast } from 'sonner';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLoading, setUser } from '@/redux/authSlice';
+import { setLoading, setUser, setToken } from '@/redux/authSlice';
 import { Loader2, Mail, Lock, LogIn } from 'lucide-react';
 
 const Login = () => {
   const [input, setInput] = useState({ email: '', password: '', role: '' });
-  const { loading, user } = useSelector((store) => store.auth);
+  const { loading, user, token } = useSelector((store) => store.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -52,13 +52,14 @@ const Login = () => {
     try {
       dispatch(setLoading(true));
       const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         withCredentials: true,
         signal: controller.signal, // <-- tie request to controller
       });
 
       if (res.data?.success) {
         dispatch(setUser(res.data.user));
+        dispatch(setToken(res.data.token));
         toast.success(res.data?.message || 'Logged in');
         navigate('/');
       } else {

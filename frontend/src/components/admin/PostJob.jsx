@@ -16,7 +16,7 @@ import axios from "axios";
 import { JOB_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 
 const PostJob = () => {
   const [input, setInput] = useState({
@@ -34,13 +34,13 @@ const PostJob = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { companies } = useSelector((store) => store.company);
+  const { token } = useSelector((store) => store.auth);
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
 
   const selectChangeHandler = (value) => {
-    // value is company.name.toLowerCase(); map to _id
     const selectedCompany = companies.find(
       (c) => c?.name?.toLowerCase() === value
     );
@@ -49,7 +49,6 @@ const PostJob = () => {
     }
   };
 
-  // Keep the select in sync if user navigates back here with a saved companyId
   const selectedCompanyValue = useMemo(() => {
     const c = companies.find((x) => x._id === input.companyId);
     return c?.name?.toLowerCase();
@@ -58,7 +57,6 @@ const PostJob = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      // simple client-side checks (optional, UX)
       if (!input.title?.trim()) return toast.error("Title is required");
       if (!input.description?.trim())
         return toast.error("Description is required");
@@ -66,7 +64,10 @@ const PostJob = () => {
 
       setLoading(true);
       const res = await axios.post(`${JOB_API_END_POINT}/post`, input, {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         withCredentials: true,
       });
       if (res.data.success) {
@@ -85,24 +86,34 @@ const PostJob = () => {
       <Navbar />
 
       <div className="max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Card */}
         <form
           onSubmit={submitHandler}
           className="bg-white border rounded-md shadow-sm ring-1 ring-gray-100"
         >
-          {/* Header */}
-          <div className="px-5 sm:px-8 py-5 border-b bg-gray-50/70">
-            <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
-              Post a New Job
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Fill in the job details below. Fields marked with * are required.
-            </p>
+          {/* Header with Back button */}
+          <div className="px-5 sm:px-8 py-5 border-b bg-gray-50/70 flex items-center justify-between gap-5">
+            <Button
+              onClick={() => navigate("/admin/jobs")}
+              variant="outline"
+              type="button"
+              className="flex items-center gap-2 text-gray-600 hover:shadow-sm"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back</span>
+            </Button>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+                Post a New Job
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                Fill in the job details below. Fields marked with * are required.
+              </p>
+            </div>
           </div>
 
           {/* Body */}
           <div className="px-5 sm:px-8 py-6">
-            {/* Company select (full width row) */}
+            {/* Company select */}
             <div className="mb-5">
               <Label className="mb-1.5 inline-block">
                 Company<span className="text-red-500">*</span>

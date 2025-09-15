@@ -1,6 +1,5 @@
 // src/components/Stats.jsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import CountUp from "react-countup";
+import React, { useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Users, Briefcase, Building2, Sparkles } from "lucide-react";
 
@@ -20,12 +19,7 @@ function StatCard({
   iconClassName = "",
 }) {
   const prefersReducedMotion = useReducedMotion();
-  const [isClient, setIsClient] = useState(false);
-  const startRef = useRef(0);
-
-  useEffect(() => setIsClient(true), []);
-
-  const staticNumber = useMemo(() => fmt(value), [value]);
+  const staticNumber = fmt(value);
 
   return (
     <motion.div
@@ -52,25 +46,8 @@ function StatCard({
         <div
           className="font-extrabold tracking-tight tabular-nums leading-none
                      text-xl sm:text-2xl lg:text-3xl"
-          aria-live="polite"
         >
-          {isClient ? (
-            <CountUp
-              end={value}
-              duration={prefersReducedMotion ? 0 : 1.2}
-              separator=","
-              preserveValue={false}
-              start={startRef.current}
-              onStart={() => {
-                // reset start to zero each time it enters view
-                startRef.current = 0;
-              }}
-              enableScrollSpy
-              scrollSpyOnce
-            />
-          ) : (
-            staticNumber
-          )}
+          {staticNumber}
         </div>
         <div className="mt-1 text-[11px] sm:text-xs lg:text-sm uppercase tracking-wide text-foreground/60">
           {label}
@@ -107,19 +84,11 @@ export default function Stats({ totals }) {
         transition={{ duration: 0.4 }}
         className="rounded-xl p-3 sm:p-4 lg:p-6 bg-background mt-3"
       >
-        {/* Responsive grid:
-            - 1 col (very small phones)
-            - 2 cols (phones)
-            - 3 cols (tablets)
-            - 4 cols (laptops)
-            - 5 cols (wide/desktop) */}
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
           <StatCard icon={<Users />}     label="Users"       value={targets.users}     delay={0.00} />
           <StatCard icon={<Briefcase />} label="Jobs Posted" value={targets.jobs}      delay={0.05} />
           <StatCard icon={<Building2 />} label="Companies"   value={targets.companies} delay={0.10} />
           <StatCard icon={<Sparkles />}  label="Hires Made"  value={targets.hires}     delay={0.15} />
-          {/* Optional: add a 5th/placeholder card for symmetry on xl screens
-              or remove xl:grid-cols-5 above if you only want four. */}
         </div>
       </motion.div>
     </section>

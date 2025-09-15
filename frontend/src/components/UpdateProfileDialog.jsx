@@ -18,7 +18,7 @@ import { toast } from "sonner";
 
 const UpdateProfileDialog = ({ open, setOpen }) => {
   const [loading, setLoading] = useState(false);
-  const { user } = useSelector((store) => store.auth);
+  const { user, token } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
 
   const [input, setInput] = useState({
@@ -83,6 +83,9 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
       const res = await axios.post(`${USER_API_END_POINT}/profile/update`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
       });
       if (res.data?.success) {
         dispatch(setUser(res.data.user));

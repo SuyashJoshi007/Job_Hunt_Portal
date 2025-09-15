@@ -40,6 +40,7 @@ const StatusBadge = ({ status }) => {
 
 const ApplicantsTable = () => {
   const { applicants } = useSelector((store) => store.application)
+  const { token } = useSelector((store) => store.auth)
   const [rows, setRows] = useState([])
   const [filter, setFilter] = useState('All')
 
@@ -52,7 +53,8 @@ const ApplicantsTable = () => {
       axios.defaults.withCredentials = true
       const res = await axios.post(
         `${APPLICATION_API_END_POINT}/status/${id}/update`,
-        { status }
+        { status },
+        { headers: { Authorization: `Bearer ${token}` } }
       )
       if (res.data.success) {
         toast.success(res.data.message)
