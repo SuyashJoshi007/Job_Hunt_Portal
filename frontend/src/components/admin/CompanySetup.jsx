@@ -23,7 +23,7 @@ const CompanySetup = () => {
     website: "",
     location: "",
     // IMPORTANT: this can be a File OR a string URL (existing logo)
-    file: null,
+    logo: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -31,10 +31,10 @@ const CompanySetup = () => {
 
   // Derive a readable name from either File or URL
   const displayFileName =
-    input?.file instanceof File
-      ? input.file.name
-      : typeof input?.file === "string" && input.file
-      ? input.file.split("/").pop()
+    input?.logo instanceof File
+      ? input.logo.name
+      : typeof input?.logo === "string" && input.logo
+      ? input.logo.split("/").pop()
       : "PNG/JPG up to 2MB";
 
   const changeEventHandler = (e) => {
@@ -43,7 +43,18 @@ const CompanySetup = () => {
 
   const changeFileHandler = (e) => {
     const file = e.target.files?.[0] || null;
-    setInput((prev) => ({ ...prev, file })); // Now a real File
+
+    // Optional client-side guards
+    if (file && file.size > 2 * 1024 * 1024) {
+      toast.error("Logo must be under 2MB");
+      return;
+    }
+    if (file && !["image/png", "image/jpeg"].includes(file.type)) {
+      toast.error("Only PNG/JPG allowed");
+      return;
+    }
+
+    setInput((prev) => ({ ...prev, logo: file })); // Now a real File
   };
 
   const submitHandler = async (e) => {
@@ -53,6 +64,17 @@ const CompanySetup = () => {
     if (!input.name?.trim()) return toast.error("Company name is required");
     if (!params?.id) return toast.error("Missing company id in route");
 
+    // Optional small validation
+    if (input.website) {
+      try {
+        // will throw if invalid
+        // eslint-disable-next-line no-new
+        new URL(input.website);
+      } catch {
+        return toast.error("Invalid website URL");
+      }
+    }
+
     const formData = new FormData();
     formData.append("name", input.name || "");
     formData.append("description", input.description || "");
@@ -60,8 +82,8 @@ const CompanySetup = () => {
     formData.append("location", input.location || "");
 
     // Only append when a NEW file was selected.
-    if (input.file instanceof File) {
-      formData.append("file", input.file);
+    if (input.logo instanceof File) {
+      formData.append("logo", input.logo); // MUST match upload.single("logo")
     }
 
     try {
@@ -90,13 +112,13 @@ const CompanySetup = () => {
   };
 
   useEffect(() => {
-    // Safely hydrate from store; allow file to be a URL (existing)
+    // Safely hydrate from store; allow logo to be a URL (existing)
     setInput({
       name: singleCompany?.name || "",
       description: singleCompany?.description || "",
       website: singleCompany?.website || "",
       location: singleCompany?.location || "",
-      file: singleCompany?.file || null, // keep existing URL, don't force File
+      logo: singleCompany?.logo || null, // keep existing URL, don't force File
     });
   }, [singleCompany]);
 
@@ -194,6 +216,7 @@ const CompanySetup = () => {
 
                   <Input
                     id="logo"
+                    name="logo"
                     type="file"
                     accept="image/png,image/jpeg"
                     onChange={changeFileHandler}
