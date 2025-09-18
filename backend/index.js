@@ -17,7 +17,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("public"));
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+
+const allowedOrigins = [process.env.FRONTEND_URL]; // Production URL from .env
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow requests with no origin (mobile apps, curl)
+      if (
+        allowedOrigins.includes(origin) || // allow production frontend
+        process.env.NODE_ENV !== "production" // allow any origin in dev
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.get("/", (_req, res) => res.send("API working ✅"));
 
