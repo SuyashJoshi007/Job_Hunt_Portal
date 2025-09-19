@@ -19,6 +19,7 @@ const uploadOnCloudinary = async (localFilePath) => {
       resource_type: "auto",
     });
     fs.unlinkSync(localFilePath);
+    // remove the file from the multer folder 
     return response;
   } catch (error) {
     console.log("Error while uploading file on cloudinary", error);
@@ -31,7 +32,7 @@ const removeFromCloudinary = async (cloudFileUrl, resourceType = "image") => {
   if (!cloudFileUrl) return null;
   await cloudinary.uploader
     .destroy(cloudFileUrl.substring(cloudFileUrl.lastIndexOf("/")+1, cloudFileUrl.lastIndexOf(".")), {
-        asset_folder: 'Edypros',
+        asset_folder: 'JobPortal',
       resource_type: resourceType,
     })
     .then((result) => console.log(result))

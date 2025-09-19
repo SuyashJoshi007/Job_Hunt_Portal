@@ -14,14 +14,14 @@ export const register = async (req, res) => {
         success: false,
       });
     }
-    console.log("Request File ::", req.file);
+    // console.log("Request File ::", req.file);
     
     const filePath = req.file?.path;
 
     let fileUrl = "";
     if(filePath) {
       const cloudResponse = await uploadOnCloudinary(filePath);
-      console.log("Cloudinary Response :: ", cloudResponse);
+      // console.log("Cloudinary Response :: ", cloudResponse);
       fileUrl = cloudResponse?.secure_url;
     }
 
@@ -81,12 +81,13 @@ export const login = async (req, res) => {
     // check role is correct or not
     if (role !== user.role) {
       return res.status(400).json({
-        message: "Account doesn't exist with current role.",
+        message: "Authentication failed.",
         success: false,
       });
     }
     // JWT Token creation for the user ->
     const tokenData = {
+      // This is the payload data ->
       userId: user._id,
     };
     const token = jwt.sign(tokenData, process.env.SECRET_KEY, {

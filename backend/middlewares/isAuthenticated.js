@@ -9,6 +9,7 @@ const isAuthenticated = async (req, res, next) => {
                 success: false,
             })
         }
+        // If the decode is valid then we will get the payload in the decode variable
         const decode = await jwt.verify(token, process.env.SECRET_KEY);
         if(!decode){
             return res.status(401).json({

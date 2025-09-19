@@ -13,20 +13,20 @@ dotenv.config();
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json()); // req.body can be used now 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static("public"));
 
-const allowedOrigins = [process.env.FRONTEND_URL]; // Production URL from .env
+const allowedOrigins = [process.env.FRONTEND_URL];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // allow requests with no origin (mobile apps, curl)
+      if (!origin) return callback(null, true); 
       if (
         allowedOrigins.includes(origin) || // allow production frontend
-        process.env.NODE_ENV !== "production" // allow any origin in dev
+        process.env.NODE_ENV !== "production" // 
       ) {
         callback(null, true);
       } else {
