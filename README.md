@@ -29,26 +29,6 @@ Deployed with **Vercel (frontend)** and **Render (backend)** for seamless cloud 
 
 ---
 
-## 📸 Screenshots
-
-### 🔐 Login Page
-The platform provides a secure **JWT authentication system**.  
-![Login Page](public/login.png)
-
----
-
-### 📝 Jobs Listing
-Users can browse all available jobs, filter them, and view details.  
-![Jobs Page](public/jobs.png)
-
----
-
-### 🏢 Recruiter Dashboard
-Recruiters can manage job postings, track applicants, and update listings.  
-![Recruiter Dashboard](public/jobs_recruter.png)
-
----
-
 ## 📂 Environment Variables
 Create a `.env` file in your **server** directory and add the following:
 
