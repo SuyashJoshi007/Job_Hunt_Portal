@@ -45,7 +45,7 @@ Users can browse all available jobs, filter them, and view details.
 
 ### 🏢 Recruiter Dashboard
 Recruiters can manage job postings, track applicants, and update listings.  
-![Recruiter Dashboard](public/jobs_recruter.png.png)
+![Recruiter Dashboard](public/jobs_recruter.png)
 
 ---
 
