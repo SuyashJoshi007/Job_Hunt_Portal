@@ -16,14 +16,9 @@ const CompanyCreate = () => {
   const [companyName, setCompanyName] = useState();
   const dispatch = useDispatch();
 
-  const {token} = useSelector(store=>store.auth);
-
   const registerNewCompany = async () => {
     try {
-      const res = await axiosInstance.post(`${COMPANY_API_END_POINT}/register`, { companyName }, {
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        withCredentials: true
-      });
+      const res = await axiosInstance.post(`${COMPANY_API_END_POINT}/register`, { companyName });
       if (res?.data?.success) {
         dispatch(setSingleCompany(res.data.company));
         toast.success(res.data.message);

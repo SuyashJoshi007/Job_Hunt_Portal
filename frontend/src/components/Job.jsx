@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 
 const Job = ({ job }) => {
   const navigate = useNavigate();
-  const { user, token } = useSelector((s) => s.auth);
+  const { user } = useSelector((s) => s.auth);
 
   const daysAgo = (ts) => {
     const d = ts ? new Date(ts) : null;
@@ -47,12 +47,7 @@ const Job = ({ job }) => {
     if (isApplied || applying) return;
     try {
       setApplying(true);
-      const res = await axiosInstance.get(`${APPLICATION_API_END_POINT}/apply/${job?._id}`, {
-        withCredentials: true,
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
+      const res = await axiosInstance.get(`${APPLICATION_API_END_POINT}/apply/${job?._id}`);
       if (res.data?.success) {
         setIsApplied(true);
         toast.success(res.data?.message || 'Applied successfully');

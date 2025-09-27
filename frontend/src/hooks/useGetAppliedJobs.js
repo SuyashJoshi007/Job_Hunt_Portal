@@ -6,11 +6,10 @@ import { useDispatch, useSelector } from "react-redux"
 
 const useGetAppliedJobs = () => {
     const dispatch = useDispatch();
-    const {token} = useSelector(store=>store.auth);
     useEffect(()=>{
         const fetchAppliedJobs = async () => {
             try {
-                const res = await axiosInstance.get(`${APPLICATION_API_END_POINT}/get`, {withCredentials:true, headers: { Authorization: `Bearer ${token}` }});
+                const res = await axiosInstance.get(`${APPLICATION_API_END_POINT}/get`);
                 console.log(res.data);
                 if(res.data.success){
                     dispatch(setAllAppliedJobs(res.data.application));

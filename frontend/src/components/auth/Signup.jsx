@@ -22,7 +22,7 @@ const Signup = () => {
     file: ""
   });
 
-  const { loading, user, token } = useSelector(store => store.auth);
+  const { loading, user } = useSelector(store => store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -47,8 +47,7 @@ const Signup = () => {
     try {
       dispatch(setLoading(true));
       const res = await axiosInstance.post(`${USER_API_END_POINT}/register`, formData, {
-        headers: { 'Content-Type': "multipart/form-data", Authorization: `Bearer ${token}` },
-        withCredentials: true,
+        headers: { 'Content-Type': "multipart/form-data" }
       });
       if (res.data.success) {
         navigate("/login");

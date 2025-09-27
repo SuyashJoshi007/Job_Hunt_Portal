@@ -34,7 +34,6 @@ const PostJob = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { companies } = useSelector((store) => store.company);
-  const { token } = useSelector((store) => store.auth);
 
   const changeEventHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -63,13 +62,7 @@ const PostJob = () => {
       if (!input.companyId) return toast.error("Please select a company");
 
       setLoading(true);
-      const res = await axiosInstance.post(`${JOB_API_END_POINT}/post`, input, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-      });
+      const res = await axiosInstance.post(`${JOB_API_END_POINT}/post`, input);
       if (res.data.success) {
         toast.success(res.data.message);
         navigate("/admin/jobs");

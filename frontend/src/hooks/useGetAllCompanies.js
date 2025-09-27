@@ -6,11 +6,10 @@ import { useDispatch, useSelector } from 'react-redux'
 
 const useGetAllCompanies = () => {
     const dispatch = useDispatch();
-    const {token} = useSelector(store=>store.auth);
     useEffect(()=>{
         const fetchCompanies = async () => {
             try {
-                const res = await axiosInstance.get(`${COMPANY_API_END_POINT}/get`,{withCredentials:true, headers: { Authorization: `Bearer ${token}` }});
+                const res = await axiosInstance.get(`${COMPANY_API_END_POINT}/get`);
                 console.log('called');
                 if(res.data.success){
                     dispatch(setCompanies(res.data.companies));

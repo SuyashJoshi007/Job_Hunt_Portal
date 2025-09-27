@@ -16,7 +16,6 @@ const CompanySetup = () => {
   useGetCompanyById(params.id);
 
   const { singleCompany } = useSelector((store) => store.company);
-  const { token } = useSelector((store) => store.auth);
 
   const [input, setInput] = useState({
     name: "",
@@ -68,15 +67,7 @@ const CompanySetup = () => {
       setLoading(true);
       const res = await axiosInstance.put(
         `${COMPANY_API_END_POINT}/update/${params.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
-      );
+        formData);
 
       if (res?.data?.success) {
         toast.success(res.data.message || "Company updated");
