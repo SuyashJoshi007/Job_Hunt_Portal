@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
+import axiosInstance from "@/lib/axios";
 import { LogOut, User2, Menu, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,7 +21,7 @@ const Navbar = () => {
 
   const logoutHandler = async () => {
     try {
-      const res = await axios.get(`${USER_API_END_POINT}/logout`, { withCredentials: true, headers: { Authorization: `Bearer ${token}` } });
+      const res = await axiosInstance.get(`${USER_API_END_POINT}/logout`, { withCredentials: true, headers: { Authorization: `Bearer ${token}` } });
       if (res.data?.success) {
         dispatch(setUser(null));
         navigate("/");

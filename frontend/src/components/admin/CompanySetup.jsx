@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { ArrowLeft, Loader2, Upload } from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import axios from "axios";
+import axiosInstance from "@/lib/axios";
 import { COMPANY_API_END_POINT } from "@/utils/constant";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -66,7 +66,7 @@ const CompanySetup = () => {
 
     try {
       setLoading(true);
-      const res = await axios.put(
+      const res = await axiosInstance.put(
         `${COMPANY_API_END_POINT}/update/${params.id}`,
         formData,
         {

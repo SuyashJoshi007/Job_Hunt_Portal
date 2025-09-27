@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { RadioGroup } from '../ui/radio-group';
 import { Button } from '../ui/button';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 import { USER_API_END_POINT } from '@/utils/constant';
 import { toast } from 'sonner';
 import { useDispatch, useSelector } from 'react-redux';
@@ -51,7 +51,7 @@ const Login = () => {
 
     try {
       dispatch(setLoading(true));
-      const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
+      const res = await axiosInstance.post(`${USER_API_END_POINT}/login`, input, {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         withCredentials: true,
         signal: controller.signal, // <-- tie request to controller
@@ -67,11 +67,7 @@ const Login = () => {
       }
     } catch (error) {
       // If aborted, don't show an error toast
-      if (error?.name === 'CanceledError' || axios.isCancel?.(error)) {
-        // silently ignore
-      } else {
-        toast.error(error?.response?.data?.message || 'Login failed');
-      }
+      toast.error(error?.response?.data?.message || 'Login failed');
     } finally {
       dispatch(setLoading(false));
       reqControllerRef.current = null;

@@ -6,7 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { Badge } from './ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 import { APPLICATION_API_END_POINT } from '@/utils/constant';
 import { toast } from 'sonner';
 
@@ -47,7 +47,7 @@ const Job = ({ job }) => {
     if (isApplied || applying) return;
     try {
       setApplying(true);
-      const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${job?._id}`, {
+      const res = await axiosInstance.get(`${APPLICATION_API_END_POINT}/apply/${job?._id}`, {
         withCredentials: true,
         headers: {
           "Authorization": `Bearer ${token}`

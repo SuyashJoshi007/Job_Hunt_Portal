@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 import { APPLICATION_API_END_POINT, JOB_API_END_POINT } from '@/utils/constant';
 import { setSingleJob } from '@/redux/jobSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -37,7 +37,7 @@ const JobDescription = () => {
     if (isApplied || applying) return;
     try {
       setApplying(true);
-      const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobId}`, {
+      const res = await axiosInstance.get(`${APPLICATION_API_END_POINT}/apply/${jobId}`, {
         withCredentials: true,
         headers: {
           Authorization: `Bearer ${token}`,
@@ -62,7 +62,7 @@ const JobDescription = () => {
   useEffect(() => {
     const fetchSingleJob = async () => {
       try {
-        const res = await axios.get(`${JOB_API_END_POINT}/get/${jobId}`, {
+        const res = await axiosInstance.get(`${JOB_API_END_POINT}/get/${jobId}`, {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${token}`,
